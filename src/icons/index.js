@@ -9,7 +9,7 @@ const req = require.context('./svg', false, /\.svg$/)
 // require方法返回的是一个req函数 ——> 根据路径把对应的模块导入进来
 
 // 函数keys属性 是一个方法 这个方法返回一个数组(包括所有svg图片的数组)
-console.log(req.keys())
+// console.log(req.keys())
 
 // map 返回一个和原来数组长度一致的新数组
 // 映射

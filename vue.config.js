@@ -30,8 +30,8 @@ module.exports = {
   publicPath: '/',
   outputDir: 'dist',
   assetsDir: 'static',
-  // lintOnSave: process.env.NODE_ENV === 'development', // eslint关闭，
-  lintOnSave: Boolean(process.env.isLint), // 另一种方式关闭eslint
+  lintOnSave: process.env.NODE_ENV === 'development', // eslint关闭，
+  // lintOnSave: Boolean(process.env.isLint), // 另一种方式关闭eslint
   productionSourceMap: false,
   devServer: {
     port: port,
@@ -39,6 +39,14 @@ module.exports = {
     overlay: {
       warnings: false,
       errors: true
+    },
+    // 该项目中代理跨域的配置（这个地方配置的是开发环境的）
+    proxy: {
+      // 当我们的本地的请求 有/api的时候，后端就会代理我们的请求地址向另外一个服务器发出请求
+      '/api': {
+        target: 'http://ihrm-java.itheima.net/', // 跨域请求的地址
+        changeOrigin: true // 只有这个值为true的情况下 才表示开启跨域
+      }
     }
     // before: require('./mock/mock-server.js')
   },
