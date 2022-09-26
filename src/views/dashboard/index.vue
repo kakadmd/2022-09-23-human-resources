@@ -19,7 +19,17 @@ export default {
     ...mapGetters([
       'name'
     ])
-  }
+  }/* ,
+  async created() {
+    // const res = await this.$store.dispatch('user/getUserInfo')
+    // 这个样子是和modules里面getUserInfo  return出来的值是一样的
+    // 如果想修改的话，要深拷贝一下可以用JSON.parse(JSON.stringify())来深拷贝
+    const res = JSON.parse(JSON.stringify(await this.$store.dispatch('user/getUserInfo')))
+    console.log(res)
+    // 深拷贝之后修改不会影响vuex里面的数据
+    // 但是如果是const res = await this.$store.dispatch('user/getUserInfo')会影响vuex里面的数据
+    res.mobile = 1234567890
+  } */
 }
 </script>
 

@@ -1,8 +1,10 @@
 import { loginAPI } from '@/api/login'
+import { getInfo, getMoreUserInfoById } from '@/api/user'
 export default {
   namespaced: true,
   state: {
-    token: null
+    token: null,
+    userInfo: {}
   },
   // 修改state里面数据的方式通过mutations修改的，
   // 但是在外部修改token里面的值也不会报错 但是我们需要规避这种问题，
@@ -10,6 +12,12 @@ export default {
   mutations: {
     SET_TOKEN(state, token) {
       state.token = token
+    },
+    SET_USER_INFO(state, userInfo) {
+      state.userInfo = userInfo
+    },
+    REMOVE_USER_INFO(state) {
+      state.userInfo = {}
     }
   },
   actions: {
@@ -27,6 +35,15 @@ export default {
       const data = await loginAPI(loginData)
       console.log(data)
       commit('SET_TOKEN', data)
+    },
+    async getUserInfo({ commit }) {
+      // 请求用户信息
+      const res = await getInfo()
+      // console.log(res)
+      const res1 = await getMoreUserInfoById(res.userId)
+      const result = { ...res, ...res1 }
+      commit('SET_USER_INFO', result)
+      return JSON.parse(JSON.stringify(result))
     }
   }
 }
