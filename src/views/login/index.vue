@@ -131,16 +131,20 @@ export default {
     },
 
     async userLogin() {
-      await this.$refs.loginForm.validate()
+      try {
+        await this.$refs.loginForm.validate()
 
-      // 通过校验之后，点击登录 loding 转圈
-      this.loading = true
+        // 通过校验之后，点击登录 loding 转圈
+        this.loading = true
 
-      // 调取接口请求
-      await this.$store.dispatch('user/loginAction', this.loginForm)
-
-      // 成功登陆之后，loading结束转圈
-      this.loading = false
+        // 调取接口请求
+        await this.$store.dispatch('user/loginAction', this.loginForm)
+        // 接口请求成功 跳转路由
+        this.$router.push('/dashboard')
+      } finally {
+        // 成功登陆之后，loading结束转圈
+        this.loading = false
+      }
     }
   }
 }
