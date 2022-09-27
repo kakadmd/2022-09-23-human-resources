@@ -60,8 +60,12 @@ export default {
       this.$store.dispatch('app/toggleSideBar')
     },
     async logout() {
+      // 因为之前做了权限 直接路由跳转到登录页是跳不过去，
+      // 需要清除本地的token和userInfo
+      // 清除原有的数据 ==> token userInfo  之后再跳转
+      // 在这里跳转，在store下面的user.js清除数据
       await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      this.$router.push('/login')
     }
   }
 }

@@ -3,8 +3,18 @@ import axios from 'axios'
 
 // 引入message组件
 import { Message } from 'element-ui'
-
 import store from '@/store'
+import router from '@/router'
+
+const timeOut = 3600 // s
+
+//  做一个token超时的函数
+function isCheckTime() {
+  const currentTime = Date.now()
+  const timeStarmp = (currentTime - store.getters.tokenTime) / 1000
+  return timeStarmp > timeOut
+}
+
 // 通过axios创建axios实例
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // 基准地址
@@ -14,8 +24,15 @@ const service = axios.create({
 // 在这里统一的去拼接token
 service.interceptors.request.use(config => {
   // config 就是请求所需的数据
-  // 在这个位置需要统一的去注入token
   if (store.getters.token) {
+    // 检查token时间
+    if (isCheckTime()) {
+      store.dispatch('user/logout')
+      router.push('/login')
+      return Promise.reject(new Error('token超时'))
+    }
+
+    // 在这个位置需要统一的去注入token
     // 如果token存在 注入token
     // config.headers['Authorization'] = `Bearer ${store.getters.token}`
     config.headers.Authorization = `Bearer ${store.getters.token}`
@@ -43,7 +60,14 @@ service.interceptors.response.use(response => {
   Message.error(message)
   return Promise.reject(new Error(message))
 }, error => {
-  Message.error.reject(error)
+  if (error.response && error.response.status === 401) {
+    store.dispatch('user/logout')
+    router.push('/login')
+    Message.error('token超时')
+  } else {
+    Message.error(error.message)
+  }
+
   return Promise.reject(error)
 })
 

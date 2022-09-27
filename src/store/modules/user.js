@@ -4,7 +4,8 @@ export default {
   namespaced: true,
   state: {
     token: null,
-    userInfo: {}
+    userInfo: {},
+    tokenTime: 0 // token存在的时间
   },
   // 修改state里面数据的方式通过mutations修改的，
   // 但是在外部修改token里面的值也不会报错 但是我们需要规避这种问题，
@@ -16,8 +17,16 @@ export default {
     SET_USER_INFO(state, userInfo) {
       state.userInfo = userInfo
     },
+    // 清除用户信息
     REMOVE_USER_INFO(state) {
       state.userInfo = {}
+    },
+    // 清除token
+    REMOVE_TOKEN(state) {
+      state.token = null
+    },
+    SET_TOKENTIME(state, tokenTime) {
+      state.tokenTime = tokenTime
     }
   },
   actions: {
@@ -35,6 +44,7 @@ export default {
       const data = await loginAPI(loginData)
       console.log(data)
       commit('SET_TOKEN', data)
+      commit('SET_TOKENTIME', new Date().getTime())
     },
     async getUserInfo({ commit }) {
       // 请求用户信息
@@ -43,7 +53,12 @@ export default {
       const res1 = await getMoreUserInfoById(res.userId)
       const result = { ...res, ...res1 }
       commit('SET_USER_INFO', result)
-      return JSON.parse(JSON.stringify(result))
+      return JSON.parse(JSON.stringify(result)) // 后面会用的
+    },
+    logout({ commit }) {
+      // 在这里清除数据
+      commit('REMOVE_USER_INFO')
+      commit('REMOVE_TOKEN')
     }
   }
 }
