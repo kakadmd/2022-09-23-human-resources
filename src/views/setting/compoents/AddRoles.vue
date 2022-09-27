@@ -20,8 +20,8 @@
         >
           <el-input v-model="formDate.name" />
         </el-form-item>
-        <el-form-item label="描述" prop="desc">
-          <el-input v-model="formDate.desc" type="textarea" row="3" />
+        <el-form-item label="描述" prop="description">
+          <el-input v-model="formDate.description" type="textarea" row="3" />
         </el-form-item>
       </el-form>
       <el-row
@@ -32,13 +32,14 @@
         class="dialog-footer"
       >
         <el-button @click="cancel">取 消</el-button>
-        <el-button type="primary">确 定</el-button>
+        <el-button v-loading="loading" type="primary" @click="submit">确 定</el-button>
       </el-row>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import { addRole } from '@/api/setting'
 export default {
   name: 'HrsaasAddRole',
   props: {
@@ -52,13 +53,29 @@ export default {
     return {
       formDate: {
         name: '',
-        desc: ''
-      }
+        description: ''
+      },
+      loading: false
     }
   },
   methods: {
     cancel() {
       this.$emit('update:disvisible', false)
+      this.$refs.roleDialogForm.resetFields()
+    },
+    async submit() {
+      try {
+        await this.$refs.roleDialogForm.validate()
+        this.loading = true
+        await addRole(this.formDate)
+        this.$emit('refreshList')
+        this.$message.success('新增角色成功')
+        this.cancel()
+      } catch (error) {
+        console.log(error)
+      } finally {
+        this.loading = false
+      }
     }
   }
 }

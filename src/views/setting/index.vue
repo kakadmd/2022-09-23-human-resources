@@ -16,7 +16,7 @@
           </el-row>
           <el-table
             v-loading="loading"
-            style="width: 100%"
+            style="width:100%"
             :data="roleList"
           >
             <el-table-column
@@ -26,16 +26,16 @@
             />
             <el-table-column
               label="角色名称"
-              width="180"
+              width="300"
               prop="name"
             />
             <el-table-column
               label="描述"
-              width="180"
               prop="description"
             />
             <el-table-column
               label="操作"
+              width="300"
             >
               <el-button size="small" type="success">分配权限</el-button>
               <el-button size="small" type="primary">编辑</el-button>
@@ -73,7 +73,7 @@
         <el-tab-pane label="公司信息" name="second">公司信息</el-tab-pane>
       </el-tabs>
     </el-card>
-    <AddRole :disvisible.sync="disvisible" />
+    <AddRole :disvisible.sync="disvisible" @refreshList="getRoleList" />
   </div>
 </template>
 
