@@ -1,7 +1,10 @@
 <template>
   <div>
+    <!-- :title="formDate.id ? '编辑角色':'新增角色'"
+          或者在计算属性里面绑定:title="title"
+    -->
     <el-dialog
-      title="新增角色"
+      :title="title"
       width="30%"
       :visible.sync="disvisible"
       :before-close="cancel"
@@ -39,7 +42,7 @@
 </template>
 
 <script>
-import { addRole } from '@/api/setting'
+import { addRole, updateRole } from '@/api/setting'
 export default {
   name: 'HrsaasAddRole',
   props: {
@@ -58,18 +61,32 @@ export default {
       loading: false
     }
   },
+  computed: {
+    title() {
+      return this.formDate.id ? '编辑角色' : '新增角色'
+    }
+  },
   methods: {
     cancel() {
       this.$emit('update:disvisible', false)
       this.$refs.roleDialogForm.resetFields()
+      // 优化点
+      //  当打开新增的时候id会不会混乱
+      // 打开弹框标题应该会改变
+      this.formDate = {
+        name: '',
+        description: ''
+      }
     },
     async submit() {
       try {
         await this.$refs.roleDialogForm.validate()
         this.loading = true
-        await addRole(this.formDate)
+        // 如果id存在那就是编辑角色
+        this.formDate.id ? await updateRole(this.formDate) : await addRole(this.formDate)
+        // await addRole(this.formDate)
         this.$emit('refreshList')
-        this.$message.success('新增角色成功')
+        this.$message.success(this.formDate.id ? '编辑角色成功' : '新增角色成功')
         this.cancel()
       } catch (error) {
         console.log(error)
