@@ -115,3 +115,33 @@ export function param2Obj(url) {
   })
   return obj
 }
+
+/**
+ * 把组织架构数据进行筛选
+ * @param {} list 需要筛选的列表
+ * @param {*} rootValue 父级的pid
+ * @returns
+ */
+/**
+ * 封装好一个函数
+ * 定义好函数，确定两个形参，list 需要处理的数据 rootValue 父元素的id
+ * 定义好一个空数组用来接收找到的元素
+ * 返回 arr
+ */
+export const getTreeData = (list, rootValue) => {
+  const arr = []
+  list.forEach(item => {
+    if (item.pid === rootValue) {
+      // console.log(item.id)
+      // 考虑一下item 有没有子元素
+      // 再调用一次函数，把跟父级有一样的id的添加到children中
+      const children = getTreeData(list, item.id)
+      if (children.length) {
+        item.children = children
+      }
+
+      arr.push(item)
+    }
+  })
+  return arr
+}
