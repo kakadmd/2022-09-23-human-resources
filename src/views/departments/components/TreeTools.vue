@@ -28,6 +28,7 @@
 </template>
 
 <script>
+import { delDepartments } from '@/api/departments'
 export default {
   name: 'HrsaasTreeTools',
   props: {
@@ -51,8 +52,23 @@ export default {
         this.$emit('addDept', this.treeNode) // 把他传给父组件
       } else if (type === 'edit') {
         // 编辑子部门
+        // 写编辑相关的逻辑
+        // 现在treeTools和AddDepts是兄弟组件，
+        // 在treeTools控制AddDepts的显示隐藏不方便
+        this.$emit('editDept', this.treeNode)
       } else {
         // 删除子部门
+        // 实现删除的逻辑
+        // 二次确认
+        this.$confirm('确认删除该部门吗？', '提示', {
+          type: 'warning'
+        }).then(async res => {
+          // 调用删除接口
+          return delDepartments(this.treeNode.id)
+        }).then(res => {
+          this.$message.success('删除成功')
+          this.$emit('refreshList')
+        })
       }
     }
   }

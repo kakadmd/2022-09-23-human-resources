@@ -1,6 +1,6 @@
 <template>
   <!-- 新增部门的弹层 -->
-  <el-dialog title="新增部门" :visible="dialogVisible" @close="close">
+  <el-dialog :title="title" :visible="dialogVisible" @close="close">
     <!-- 表单组件  el-form   label-width设置label的宽度   -->
     <!-- 匿名插槽 -->
     <el-form
@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { getDepartments, addDepartments } from '@/api/departments'
+import { getDepartments, addDepartments, updateDepartments } from '@/api/departments'
 import { getEmployeeSimple } from '@/api/employees'
 export default {
   name: 'HrsaasAddDepts',
@@ -91,9 +91,23 @@ export default {
     // 拿到所有的部门数据 一个个的去对比
     // 如果出现重复，则校验不通过，否则校验通过
     const codeCheck = async(rule, value, callback) => {
+      // value传进来的值
+      // code部门编码
+      // name部门名称
       const { depts } = await getDepartments()
       //  console.log(depts)
-      const flag = depts.some(item => item.code === value)
+      let flag = true
+      // const flag = depts.some(item => item.code === value)
+      // flag ? callback(new Error(`${value}编码已经存在`)) : callback()
+      // 编辑模式下 自己和自己校验了？？
+      // 解决方案 在对比的过程中，把自己排除掉，然后再去对比
+      if (this.formData.id) {
+        // flag = depts.some(ele => 排除我自己 && ele.code === value)
+        // some遍历数组 判断数组中是否存在某个满足条件的元素
+        flag = depts.some(ele => ele.id !== this.formData.id && ele.code === value)
+      } else {
+        flag = depts.some(item => item.code === value)
+      }
       flag ? callback(new Error(`${value}编码已经存在`)) : callback()
     }
 
@@ -104,12 +118,29 @@ export default {
     // 把数据传到父组件 父组件再把数据给AddDepts子组件
     const nameCheck = async(rule, value, callback) => {
       const { depts } = await getDepartments()
+      let flag = true
       // 找同级部门
-      const deptsTJ = depts.filter(item => item.pid === this.treeNode.id)
-      console.log(deptsTJ)
-      const flag = deptsTJ.some(item => item.name === value)
+      // 编辑模式下存在的问题，无法校验同级部门数据，（同级的列表找的不对）
+      // 解决方案：先找到所有与自己处于同级的列表，然后再排除自己，然后判断
+      if (this.formData.id) {
+        // 编辑
+        // 找对同级部门
+        // depts ==》找到真正的同级部门
+        // filter满足条件的筛选出来
+        // 把部门的pid和treeNode的pid如果一致就筛选出来 属于它的同级部门
+        // 排除自己，再判断名称是否重复
+
+        const deptstj1 = depts.filter(item => item.pid === this.treeNode.pid &&
+        item.id !== this.treeNode.id)
+
+        console.log(deptstj1)
+        flag = deptstj1.some(item => item.name === value)
+        console.log(flag)
+      } else {
+        const deptstj = depts.filter(item => item.pid === this.treeNode.id)
+        flag = deptstj.some(item => item.name === value)
+      }
       flag ? callback(new Error(`该部门下已经存在${value}`)) : callback()
-      callback()
     }
     return {
       formData: {
@@ -177,6 +208,11 @@ export default {
       loading: false
     }
   },
+  computed: {
+    title() {
+      return this.formData.id ? '编辑模式' : '新增模式'
+    }
+  },
   methods: {
     close() {
       this.$emit('update:dialogVisible', false)
@@ -199,14 +235,19 @@ export default {
         // 表单校验通过 validate（）
         await this.$refs.formDate.validate()
 
-        // 调用接口
-        await addDepartments({ ...this.formData, pid: this.treeNode.id })
-
         // 按钮的loading状态
         this.loading = true
 
+        if (this.formData.id) {
+          // 编辑模式
+          await updateDepartments(this.formData)
+        } else {
+          // 调用接口
+          await addDepartments({ ...this.formData, pid: this.treeNode.id })
+        }
+
         // 接口成功之后 消息提醒
-        this.$message.success('新增部门成功')
+        this.$message.success(`${this.formData.id ? '编辑' : '新增'}成功`)
 
         // 刷新父组件的组织架构列表(父组件重新调用一下部门列表)
         this.$parent.getDepartments()
