@@ -3,7 +3,12 @@
   <el-dialog title="新增部门" :visible="dialogVisible" @close="close">
     <!-- 表单组件  el-form   label-width设置label的宽度   -->
     <!-- 匿名插槽 -->
-    <el-form ref="formDate" label-width="120px" :model="formData" :rules="rules">
+    <el-form
+      ref="formDate"
+      label-width="120px"
+      :model="formData"
+      :rules="rules"
+    >
       <el-form-item
         label="部门名称"
         prop="name"
@@ -26,8 +31,14 @@
           v-model="formData.manager"
           style="width:80%"
           placeholder="请选择"
+          @focus="getEmployeeSimpleList"
         >
-          <el-option label="username11" value="username" />
+          <el-option
+            v-for="item in peopleList"
+            :key="item.id"
+            :label="item.username"
+            :value="item.username"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="部门介绍" prop="introduce">
@@ -44,7 +55,12 @@
     <el-row slot="footer" type="flex" justify="center">
       <!-- 列被分为24 -->
       <el-col :span="6">
-        <el-button type="primary" size="small">确定</el-button>
+        <el-button
+          v-loading="loading"
+          type="primary"
+          size="small"
+          @click="submit"
+        >确定</el-button>
         <el-button size="small">取消</el-button>
       </el-col>
     </el-row>
@@ -53,7 +69,8 @@
 </template>
 
 <script>
-import { getDepartments } from '@/api/departments'
+import { getDepartments, addDepartments } from '@/api/departments'
+import { getEmployeeSimple } from '@/api/employees'
 export default {
   name: 'HrsaasAddDepts',
   // 通过属性控制组件显示隐藏
@@ -99,7 +116,7 @@ export default {
         name: '', // 部门名称
         code: '', // 部门编码
         manager: '', // 部门管理者
-        introduce: '' // 部门介绍
+        introduce: ''// 部门介绍
       },
       rules: {
         name: [
@@ -155,15 +172,53 @@ export default {
             trigger: 'blur'
           }
         ]
-      }
+      },
+      peopleList: [],
+      loading: false
     }
   },
   methods: {
     close() {
       this.$emit('update:dialogVisible', false)
-
       // form 表单自带的方法，关闭表单之后表单内容清空
       this.$refs.formDate.resetFields()
+      this.formData = {
+        name: '',
+        code: '',
+        manager: '',
+        introduce: ''
+      }
+    },
+    async getEmployeeSimpleList() {
+      const res = await getEmployeeSimple()
+      // console.log(res)
+      this.peopleList = res
+    },
+    async submit() {
+      try {
+        // 表单校验通过 validate（）
+        await this.$refs.formDate.validate()
+
+        // 调用接口
+        await addDepartments({ ...this.formData, pid: this.treeNode.id })
+
+        // 按钮的loading状态
+        this.loading = true
+
+        // 接口成功之后 消息提醒
+        this.$message.success('新增部门成功')
+
+        // 刷新父组件的组织架构列表(父组件重新调用一下部门列表)
+        this.$parent.getDepartments()
+
+        // 关闭弹窗
+        this.close()
+      } catch (error) {
+        console.log(error)
+      } finally {
+        // 按钮的loading状态
+        this.loading = false
+      }
     }
   }
 
