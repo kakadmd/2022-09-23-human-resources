@@ -17,6 +17,9 @@ import router from './router'
 import '@/icons' // icon
 import '@/permission' // permission control
 
+// 全局注册组件
+import components from './components'
+Vue.use(components)
 // 全局注册自定义指令（这样是用一个引一个 比较麻烦）
 // import { imgerror } from '@/directives'
 // Vue.directive('imgerror', imgerror)
@@ -27,6 +30,9 @@ import * as directives from '@/directives'
 Object.keys(directives).forEach(ele => {
   Vue.directive(ele, directives[ele])
 })
+
+// 全局注册自定义指令
+
 /**
  * 全都是不需要的 注释掉或者删掉 下面模拟数据的也要删掉或者注释掉
  * If you don't want to use mock-server
