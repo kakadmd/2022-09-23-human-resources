@@ -23,7 +23,7 @@ export function getEmployeeList(params) {
   })
 }
 
-/** **
+/**
  *  新增员工的接口
  * **/
 export function addEmployee(data) {
@@ -54,6 +54,55 @@ export function importEmployee(data) {
   return request({
     url: '/sys/user/batch',
     method: 'post',
+    data
+  })
+}
+
+/**
+ * 获取用户岗位信息
+ * @param {Number} id
+ * @returns Promise
+ */
+export const userEmployeesInfo = (id) => {
+  return request({
+    url: `/employees/${id}/personalInfo`
+  })
+}
+
+/**
+ * 保存员工基本信息
+ * @param {Object} data
+ * @returns Promise
+ */
+export const saveEmployeesInfo = (data) => {
+  // 不加renturn 返回的就不是Promise，await就没法等待
+  return request({
+    url: `/employees/${data.userId}/personalInfo`,
+    method: 'PUT',
+    data
+  })
+}
+
+/**
+ * 获取员工岗位信息
+ * @param {*} data 员工id
+ * @returns Promise
+ */
+export const getJobInfo = (id) => {
+  return request({
+    url: `/employees/${id}/jobs`
+  })
+}
+
+/**
+ * 更新员工岗位信息
+ * @param {*} data 员工id
+ * @returns Promise
+ */
+export const updateJobInfo = (data) => {
+  return request({
+    url: `/employees/${data.userId}/jobs`,
+    method: 'PUT',
     data
   })
 }

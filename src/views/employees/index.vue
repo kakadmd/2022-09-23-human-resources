@@ -56,7 +56,7 @@ t
         </el-table-column>
         <el-table-column label="操作" fixed="right" width="280">
           <template slot-scope="{row}">
-            <el-button type="text" size="small">查看</el-button>
+            <el-button type="text" size="small" @click="goDetail(row.id)">查看</el-button>
             <el-button type="text" size="small">转正</el-button>
             <el-button type="text" size="small">调岗</el-button>
             <el-button type="text" size="small">离职</el-button>
@@ -142,6 +142,7 @@ export default {
       // 新增员工的弹窗 封装成一个组件
       this.dialogVisible = true
     },
+    // 删除员工
     async delEmployee(id) {
       // console.log(id)
       try {
@@ -156,6 +157,7 @@ export default {
         console.log(error)
       }
     },
+    // 导出excel表格
     async exportExcel() {
       // 实现文件懒加载
       // import {export_json_to_excel} from '@/vendor/Export2Excel.js'
@@ -218,6 +220,10 @@ export default {
         autoWidth: true, // 宽度自适应
         bookType: 'xlsx' // 文件类型
       })
+    },
+    // 查看详情
+    goDetail(id) {
+      this.$router.push('/employees/detail/' + id)
     }
   }
 }
