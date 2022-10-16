@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-container">
-    <el-button v-print="'myPrint'">打印</el-button>
+    <el-button v-print="'myPrint'" size="small" type="primary">打印</el-button>
     <div id="myPrint" class="app-container">
       <el-card>
         <el-breadcrumb separator="/" class="titInfo ">
