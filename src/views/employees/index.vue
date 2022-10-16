@@ -33,6 +33,16 @@ t
           width="80"
           type="index"
         />
+        <el-table-column label="头像" prop="staffPhoto">
+          <template slot-scope="{row}">
+            <img
+              style="width:80px;height:80px;"
+              :src="row.staffPhoto"
+              alt=""
+              @click="getCode(row.staffPhoto)"
+            >
+          </template>
+        </el-table-column>
         <el-table-column label="姓名" prop="username" />
         <el-table-column label="工号" prop="workNumber" />
         <el-table-column
@@ -90,6 +100,15 @@ t
       </el-row>
     </el-card>
     <AddEmployee :dialog-visible.sync="dialogVisible" />
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisibleCode"
+      width="50%"
+      :before-close="handleClose"
+    >
+      <!-- 内容默认没有创建，弹层显示的时候才创建 -->
+      <canvas ref="canvas" />
+    </el-dialog>
   </div>
 </template>
 
@@ -97,6 +116,7 @@ t
 import AddEmployee from './components/AddEmployee.vue'
 import EnumHirType from '@/api/constant/employees'
 import { getEmployeeList, delEmployee } from '@/api/employees'
+import QRCode from 'qrcode'
 export default {
   name: 'HrsaasIndex',
   components: {
@@ -112,7 +132,8 @@ export default {
       total: 0,
       loading: false,
       hireType: EnumHirType.hireType,
-      dialogVisible: false
+      dialogVisible: false,
+      dialogVisibleCode: false
     }
   },
 
@@ -224,6 +245,34 @@ export default {
     // 查看详情
     goDetail(id) {
       this.$router.push('/employees/detail/' + id)
+    },
+    async getCode(a) {
+      if (!a) return this.$message.error('头像不存在')
+      // vue 数据驱动/组件系统
+      // 数据驱动：数据变化=》视图变化
+      // 数据变化同步=》vue背后，视图更新（异步）
+      // 为什么？ 如果是同步，数据变，视图立马变，太消耗性能
+      // 等所有的数据都变化了
+      // 等视图更新后触发 this.$nextTick
+
+      this.dialogVisibleCode = true
+      // 第一种方法 直接this.$nextTick
+      // this.$nextTick(() => {
+      //   QRCode.toCanvas(this.$refs.canvas, 'sample text', (err) => {
+      //     if (err) console.log(err)
+      //     console.log('success')
+      //   })
+      // })
+
+      // 第二种方法 用async await
+      await this.$nextTick()
+      QRCode.toCanvas(this.$refs.canvas, 'sample text', (err) => {
+        if (err) console.log(err)
+        console.log('success')
+      })
+    },
+    handleClose() {
+      this.dialogVisibleCode = false
     }
   }
 }

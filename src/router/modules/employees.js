@@ -17,6 +17,11 @@ export default {
       path: '/employees/detail/:id',
       hidden: true,
       component: () => import('@/views/employees/detail')
+    },
+    {
+      path: 'print/:id',
+      hidden: true,
+      component: () => import('@/views/employees/print')
     }
   ]
 }

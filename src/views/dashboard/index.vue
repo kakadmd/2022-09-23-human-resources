@@ -3,10 +3,12 @@
     <div class="dashboard-text">name: {{ name }}</div>
 
     <svg-icon icon-class="user" />
-    <UploadExcel 
-    :beforeUpload="beforeUpload" 
-    :onSuccess="handleSuccess"
+    <UploadExcel
+      :before-upload="beforeUpload"
+      :on-success="handleSuccess"
     />
+    <UploadImg @onSuccess="onSuccess1" />
+    <UploadImg @onSuccess="onSuccess2" />
   </div>
   <!-- 开发环境的接口前缀 /api
        线上环境handleSuccess的接口前缀 /prod-api -->
@@ -20,26 +22,32 @@ import { mapGetters } from 'vuex'
 import UploadExcel from '@/components/UploadExcel'
 export default {
   name: 'Dashboard',
-  components:{UploadExcel},
+  components: { UploadExcel },
   computed: {
     ...mapGetters([
       'name'
     ])
   },
-  methods:{
-    handleSuccess(data){
+  methods: {
+    handleSuccess(data) {
       console.log(123)
-      console.log('data',data)
+      console.log('data', data)
       // 做具体的业务逻辑
     },
-    beforeUpload(file){
+    beforeUpload(file) {
       // 这里面写自定义的校验规则
       console.log(file)
-      if(file.size > 1024){
+      if (file.size > 1024) {
         this.$message.error('文件过大')
         return false
       }
       return true
+    },
+    onSuccess1(a) {
+      console.log('第一次', a)
+    },
+    onSuccess2() {
+      console.log('第二次')
     }
   }
 }

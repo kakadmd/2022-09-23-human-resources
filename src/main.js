@@ -24,6 +24,10 @@ Vue.use(components)
 // import { imgerror } from '@/directives'
 // Vue.directive('imgerror', imgerror)
 
+// 打印功能
+import Print from 'vue-print-nb'
+Vue.use(Print)
+
 import * as directives from '@/directives'
 // console.log(directives)
 // console.log(Object.keys(directives)) // 名字

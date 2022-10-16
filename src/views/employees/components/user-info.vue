@@ -1,5 +1,9 @@
 <template>
   <div class="user-info">
+    <i
+      class="el-icon-printer"
+      @click="$router.push('/employees/print/' + userId +'?type=personal')"
+    />
     <!-- 个人信息 -->
     <el-form label-width="220px">
       <!-- 工号 入职时间 -->
@@ -58,6 +62,11 @@
         <el-col :span="12">
           <el-form-item label="员工头像">
             <!-- 放置上传图片 -->
+            <UploadImg
+              ref="uploadIMg"
+              :default-url="employessImage"
+              @onSuccess="onSuccess"
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -91,6 +100,11 @@
 
         <el-form-item label="员工照片">
           <!-- 放置上传图片 -->
+          <UploadImg
+            ref="uploadPIC"
+            :default-url="employessPic"
+            @onSuccess="uploadPICSuccess"
+          />
         </el-form-item>
         <el-form-item label="国家/地区">
           <el-select v-model="formData.nationalArea" class="inputW2">
@@ -396,6 +410,8 @@ export default {
       userId: this.$route.params.id,
       EmployeeEnum, // 员工枚举数据
       userInfo: {},
+      employessImage: '',
+      employessPic: '',
       formData: {
         userId: '',
         username: '', // 用户名
@@ -468,15 +484,26 @@ export default {
   methods: {
     async loadUserInfo() {
       const res = await getMoreUserInfoById(this.userId)
+      // console.log(res)
+      if (res.staffPhoto) {
+        this.employessImage = res.staffPhoto
+      }
       this.userInfo = res
     },
     async loadEmployee() {
       const res = await userEmployeesInfo(this.userId)
+      // console.log(res)
+      if (res.staffPhoto) {
+        this.employessPic = res.staffPhoto
+      }
       this.formData = res
     },
     async saveUpdate() {
       // console.log(123)
       try {
+        if (this.$refs.uploadPIC.loading) {
+          return this.$message.error('头像仍在上传中')
+        }
         await saveEmployeesInfo(this.formData)
         this.$message.success('更新保存成功')
       } catch (error) {
@@ -486,11 +513,23 @@ export default {
     },
     async saveEmployees() {
       try {
+        if (this.$refs.uploadIMg.loading) {
+          return this.$message.error('头像仍在上传中')
+        }
         await saveUserInfoById(this.userInfo)
         this.$message.success('保存用户信息成功')
       } catch (error) {
         this.$message.error('保存用户信息失败')
       }
+    },
+    onSuccess(a) {
+      // console.log(a.imgUrl)
+      this.userInfo.staffPhoto = a.imgUrl
+      // console.log(this.userInfo.staffPhoto)
+    },
+    uploadPICSuccess(a) {
+      // console.log(a)
+      this.formData.staffPhoto = a.imgUrl
     }
   }
 }
